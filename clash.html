@@ -1,268 +1,58 @@
-/***
- * Clash Verge Rev / Mihomo Party 优化脚本 (精准识别版)
- * 
- * 修复内容：
- * 1. 修复正则误判：给所有英文简写（如 MY, US, ID）加上单词边界 (\b)，
- *    避免 "Mygo" 被识别为马来西亚，"Android" 被识别为印尼等问题。
- * 2. 保持 5 个核心策略组显示，底层地区分组自动隐藏。
- * 3. 包含欧洲及全球热门地区。
- */
+module.exports.parse = async (raw, { yaml }) => {
+  const config = yaml.parse(raw);
+  const proxies = config.proxies || [];
 
-// --- 1. 配置区域 ---
+  // 定义你想要的地区和对应的正则
+  const regions = [
+    { name: "HK-自动选择(Smart Group)", regex: /(?i)(港|HK|Hong)/ },
+    { name: "TW-自动选择(Smart Group)", regex: /(?i)(台|TW|Tai)/ },
+    { name: "JP-自动选择(Smart Group)", regex: /(?i)(日|JP|Japan)/ },
+    { name: "SG-自动选择(Smart Group)", regex: /(?i)(新|SG|Sing)/ },
+    { name: "US-自动选择(Smart Group)", regex: /(?i)(美|US|United)/ },
+    { name: "UK-自动选择(Smart Group)", regex: /(?i)(英|UK|Kingdom)/ },
+    { name: "DE-自动选择(Smart Group)", regex: /(?i)(德|DE|Ger)/ },
+    { name: "FR-自动选择(Smart Group)", regex: /(?i)(法|FR|France)/ },
+    { name: "NL-自动选择(Smart Group)", regex: /(?i)(荷|NL|Neth)/ },
+    { name: "BR-自动选择(Smart Group)", regex: /(?i)(巴西|BR|Brazil)/ },
+    { name: "ALL-自动选择(Smart Group)", regex: /.*/ } // 包含所有节点
+  ];
 
-const enable = true;
-
-// 地区定义 (使用 \b 限制英文简写，防止误判)
-const regionDefinitions = [
-  // --- 亚洲 (东亚/东南亚/南亚) ---
-  { name: 'HK', regex: /香港|🇭🇰|hongkong|hong kong|\bhk\b/i },
-  { name: 'TW', regex: /台湾|🇹🇼|taiwan|tai wan|\btw\b/i },
-  { name: 'JP', regex: /日本|🇯🇵|japan|\bjp\b/i },
-  { name: 'KR', regex: /韩国|🇰🇷|korea|\bkr\b/i },
-  { name: 'SG', regex: /新加坡|🇸🇬|singapore|\bsg\b/i },
-  { name: 'MY', regex: /马来西亚|马来|🇲🇾|malaysia|\bmy\b/i }, // 已修复：Mygo不会再匹配这里
-  { name: 'TH', regex: /泰国|🇹🇭|thailand|\bth\b/i },
-  { name: 'VN', regex: /越南|🇻🇳|vietnam|\bvn\b/i },
-  { name: 'PH', regex: /菲律宾|🇵🇭|philippines|\bph\b/i },
-  { name: 'ID', regex: /印尼|印度尼西亚|🇮🇩|indonesia|\bid\b/i }, // 修复：避免匹配 android, video
-  { name: 'IN', regex: /印度(?!尼)|🇮🇳|india|\bin\b/i }, // 修复：避免匹配 ping, bin
-  { name: 'IL', regex: /以色列|🇮🇱|israel|\bil\b/i },
-
-  // --- 北美 ---
-  { name: 'US', regex: /美国|🇺🇸|united states|usa|\bus\b/i }, // 修复：避免匹配 plus, bus
-  { name: 'CA', regex: /加拿大|🇨🇦|canada|\bca\b/i },
-  { name: 'MX', regex: /墨西哥|🇲🇽|mexico|\bmx\b/i },
-
-  // --- 欧洲 ---
-  { name: 'UK', regex: /英国|🇬🇧|united kingdom|great britain|\buk\b/i },
-  { name: 'DE', regex: /德国|🇩🇪|germany|\bde\b/i },
-  { name: 'FR', regex: /法国|🇫🇷|france|\bfr\b/i },
-  { name: 'NL', regex: /荷兰|🇳🇱|netherlands|\bnl\b/i },
-  { name: 'IT', regex: /意大利|🇮🇹|italy|\bit\b/i },
-  { name: 'RU', regex: /俄罗斯|🇷🇺|russia|\bru\b/i },
-  { name: 'ES', regex: /西班牙|🇪🇸|spain|\bes\b/i },
-  { name: 'PT', regex: /葡萄牙|🇵🇹|portugal|\bpt\b/i },
-  { name: 'CH', regex: /瑞士|🇨🇭|switzerland|\bch\b/i },
-  { name: 'SE', regex: /瑞典|🇸🇪|sweden|\bse\b/i },
-  { name: 'NO', regex: /挪威|🇳🇴|norway|\bno\b/i },
-  { name: 'FI', regex: /芬兰|🇫🇮|finland|\bfi\b/i },
-  { name: 'DK', regex: /丹麦|🇩🇰|denmark|\bdk\b/i },
-  { name: 'IE', regex: /爱尔兰|🇮🇪|ireland|\bie\b/i },
-  { name: 'BE', regex: /比利时|🇧🇪|belgium|\bbe\b/i },
-  { name: 'AT', regex: /奥地利|🇦🇹|austria|\bat\b/i }, // 修复：避免匹配 cat, late
-  { name: 'PL', regex: /波兰|🇵🇱|poland|\bpl\b/i },
-  { name: 'CZ', regex: /捷克|🇨🇿|czech|\bcz\b/i },
-  { name: 'UA', regex: /乌克兰|🇺🇦|ukraine|\bua\b/i },
-  { name: 'TR', regex: /土耳其|🇹🇷|turkey|\btr\b/i },
-  { name: 'RO', regex: /罗马尼亚|🇷🇴|romania|\bro\b/i },
-  { name: 'HU', regex: /匈牙利|🇭🇺|hungary|\bhu\b/i },
-
-  // --- 大洋洲 ---
-  { name: 'AU', regex: /澳大利亚|澳洲|🇦🇺|australia|\bau\b/i },
-  { name: 'NZ', regex: /新西兰|🇳🇿|new zealand|\bnz\b/i },
-
-  // --- 南美 ---
-  { name: 'BR', regex: /巴西|🇧🇷|brazil|\bbr\b/i },
-  { name: 'AR', regex: /阿根廷|🇦🇷|argentina|\bar\b/i },
-  { name: 'CL', regex: /智利|🇨🇱|chile|\bcl\b/i },
-
-  // --- 非洲 ---
-  { name: 'ZA', regex: /南非|🇿🇦|south africa|\bza\b/i },
-  { name: 'EG', regex: /埃及|🇪🇬|egypt|\beg\b/i },
-  { name: 'NG', regex: /尼日利亚|🇳🇬|nigeria|\bng\b/i }
-];
-
-// 嗅探跳过的IP段
-const skipIps = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '169.254.0.0/16', '127.0.0.0/8', 'FC00::/7', 'FE80::/10', '::1/128'];
-
-// --- 用户指定的直连规则 ---
-const userDirectRules = [
-  "DOMAIN-SUFFIX,bilibili.com,DIRECT",
-  "DOMAIN-SUFFIX,qq.com,DIRECT",
-  "DOMAIN-SUFFIX,seedhub.cc,DIRECT",
-  "DOMAIN-SUFFIX,yingmiwo.me,DIRECT",
-  "DOMAIN-SUFFIX,wormhole.app,DIRECT",
-  "DOMAIN-SUFFIX,aliyun.com,DIRECT",
-  "DOMAIN-SUFFIX,pipiyao.pro,DIRECT",
-  "DOMAIN-SUFFIX,hhkan4.com,DIRECT",
-  "DOMAIN-SUFFIX,pubgmap.top,DIRECT",
-  "DOMAIN-SUFFIX,doc2x.noedgeai.com,DIRECT",
-  "DOMAIN-SUFFIX,huya.com,DIRECT",
-  "DOMAIN-SUFFIX,douyu.com,DIRECT",
-  "DOMAIN-SUFFIX,quark.cn,DIRECT",
-  "DOMAIN-SUFFIX,chaoxing.com,DIRECT",
-  "DOMAIN-SUFFIX,douyin.com,DIRECT",
-  "DOMAIN-SUFFIX,xiaoheihe.cn,DIRECT",
-  "DOMAIN-SUFFIX,doubao.com,DIRECT",
-  "DOMAIN-SUFFIX,deepseek.com,DIRECT",
-  "DOMAIN-SUFFIX,csdn.net,DIRECT",
-  "DOMAIN-SUFFIX,aihome.chat,DIRECT",
-  "DOMAIN-SUFFIX,itdog.cn,DIRECT",
-  "PROCESS-NAME,wetype_installer.exe,DIRECT",
-  "PROCESS-NAME,wetype_renderer.exe,DIRECT",
-  "PROCESS-NAME,wetype_server.exe,DIRECT",
-  "PROCESS-NAME,wetype_service.exe,DIRECT",
-  "PROCESS-NAME,wetype_update.exe,DIRECT",
-  "PROCESS-NAME,GameViewer.exe,DIRECT",
-  "PROCESS-NAME,GameViewerService.exe,DIRECT"
-];
-
-// 基础局域网直连规则
-const lanDirectRules = [
-  'IP-CIDR,10.0.0.0/8,DIRECT,no-resolve',
-  'IP-CIDR,172.16.0.0/12,DIRECT,no-resolve',
-  'IP-CIDR,192.168.0.0/16,DIRECT,no-resolve',
-  'IP-CIDR,127.0.0.0/8,DIRECT,no-resolve',
-  'IP-CIDR6,::1/128,DIRECT,no-resolve',
-  'IP-CIDR6,fc00::/7,DIRECT,no-resolve',
-  'IP-CIDR6,fe80::/10,DIRECT,no-resolve'
-];
-
-// --- 2. 主逻辑 ---
-
-function main(config) {
-  if (!enable) return config;
-
-  const proxies = config?.proxies || [];
-  if (proxies.length === 0) {
-    throw new Error('配置文件中未找到任何节点');
+  // 确保 proxy-groups 存在
+  if (!config['proxy-groups']) {
+    config['proxy-groups'] = [];
   }
 
-  // 2.1 基础设置
-  config['allow-lan'] = true;
-  config['mode'] = 'rule';
-  config['unified-delay'] = true;
-  config['tcp-concurrent'] = true;
-  if (config.dns) delete config.dns;
+  // 倒序插入，保证顺序（或者你可以创建一个新数组重新排列）
+  // 这里我们将生成的组插入到列表的最前面
+  const autoGroups = [];
 
-  config['sniffer'] = {
-    enable: true,
-    'force-dns-mapping': true,
-    'parse-pure-ip': true,
-    'override-destination': true,
-    sniff: { TLS: { ports: [443, 8443] }, HTTP: { ports: [80, '8080-8880'] }, QUIC: { ports: [443, 8443] } },
-    'skip-dst-address': skipIps
-  };
+  regions.forEach(region => {
+    // 核心逻辑：检查现有节点中是否有符合该正则的
+    // 只有当 hasNodes 为 true 时，才创建这个组
+    const hasNodes = proxies.some(p => p.name.match(region.regex));
 
-  config['tun'] = {
-    stack: 'mixed',
-    'auto-route': true,
-    'auto-detect-interface': true,
-    'dns-hijack': ['any:53']
-  };
-
-  // 2.2 节点分类与隐藏分组生成
-  const allProxyNames = proxies.map(p => p.name);
-  const regionGroups = {};
-  const generatedGroups = [];
-
-  // 初始化所有地区
-  regionDefinitions.forEach(r => regionGroups[r.name] = { ...r, proxies: [] });
-
-  // 遍历节点进行归类
-  proxies.forEach(proxy => {
-    for (const region of regionDefinitions) {
-      if (region.regex.test(proxy.name)) {
-        regionGroups[region.name].proxies.push(proxy.name);
-        break;
-      }
-    }
-  });
-
-  const regionAutoGroupNames = [];
-  
-  regionDefinitions.forEach(r => {
-    const groupData = regionGroups[r.name];
-    if (groupData.proxies.length > 0) {
-      const groupName = `${r.name}-自动选择`;
-      regionAutoGroupNames.push(groupName);
-      // hidden: true 确保这些组不显示在面板上
-      generatedGroups.push({
-        name: groupName,
-        type: 'url-test',
-        url: 'http://www.gstatic.com/generate_204',
+    if (hasNodes || region.name.includes("ALL")) {
+      autoGroups.push({
+        name: region.name,
+        type: "url-test",
+        url: "http://www.gstatic.com/generate_204",
         interval: 300,
         tolerance: 50,
-        proxies: groupData.proxies,
-        hidden: true 
+        filter: region.regex.source // 使用正则筛选节点
+        // 如果你需要包含 provider 中的节点，这里不需要改动，
+        // 因为 filter 是作用于全局节点池的（如果在 use 模式下逻辑不同，通常 filter 够用）
       });
     }
   });
 
-  // 全球自动选择 (隐藏)
-  const allAutoGroupName = 'ALL-自动选择';
-  generatedGroups.push({
-    name: allAutoGroupName,
-    type: 'url-test',
-    url: 'http://www.gstatic.com/generate_204',
-    interval: 300,
-    tolerance: 50,
-    proxies: allProxyNames,
-    hidden: true
-  });
-  regionAutoGroupNames.push(allAutoGroupName);
+  // 将自动组添加到 proxy-groups 的最前面
+  config['proxy-groups'] = [...autoGroups, ...config['proxy-groups']];
 
-  // 2.3 构建5个核心策略组
+  // 可选：如果你希望这些自动组也被加入到“漏网之鱼”或“Proxy”主策略组中
+  // const mainGroup = config['proxy-groups'].find(g => g.name === 'Proxy' || g.name === '节点选择');
+  // if (mainGroup) {
+  //    mainGroup.proxies = [...autoGroups.map(g => g.name), ...mainGroup.proxies];
+  // }
 
-  // 1. 🎯手动选择
-  const groupManual = {
-    name: '🎯手动选择',
-    type: 'select',
-    proxies: allProxyNames
-  };
-
-  // 2. 🤖自动选择 (包含隐藏的地区分组)
-  const groupAuto = {
-    name: '🤖自动选择',
-    type: 'select',
-    proxies: regionAutoGroupNames
-  };
-
-  // 3. 🔀负载均衡(散列)
-  const groupHash = {
-    name: '🔀负载均衡(散列)',
-    type: 'load-balance',
-    strategy: 'consistent-hashing',
-    url: 'http://www.gstatic.com/generate_204',
-    interval: 300,
-    proxies: allProxyNames
-  };
-
-  // 4. 🔁负载均衡(轮询)
-  const groupRoundRobin = {
-    name: '🔁负载均衡(轮询)',
-    type: 'load-balance',
-    strategy: 'round-robin',
-    url: 'http://www.gstatic.com/generate_204',
-    interval: 300,
-    proxies: allProxyNames
-  };
-
-  // 5. 🛜代理模式
-  const groupProxyMode = {
-    name: '🛜代理模式',
-    type: 'select',
-    proxies: ['🤖自动选择', '🎯手动选择', '🔀负载均衡(散列)', '🔁负载均衡(轮询)', 'DIRECT']
-  };
-
-  // 2.4 组装
-  config['proxy-groups'] = [
-    groupProxyMode,
-    groupManual,
-    groupAuto,
-    groupHash,
-    groupRoundRobin,
-    ...generatedGroups
-  ];
-
-  // 2.5 规则
-  config['rules'] = [
-    ...userDirectRules,
-    ...lanDirectRules,
-    'MATCH,🛜代理模式'
-  ];
-
-  delete config['rule-providers'];
-
-  return config;
-}
+  return yaml.stringify(config);
+};
