@@ -15,7 +15,7 @@ dns:
   direct-nameserver:           #规则匹配到直连时使用的DNS，既然是可以直连的，当然要用国内DNS
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
-  respect-rules: false      #让连接DNS服务器时能够遵循规则，也就是通过代理节点连接到上面设置的国外DNS，因为直连可能连接不上
+  respect-rules: true      #让连接DNS服务器时能够遵循规则，也就是通过代理节点连接到上面设置的国外DNS，因为直连可能连接不上
   
 proxy-groups:
   - name: 节点选择
@@ -611,6 +611,7 @@ rules:
   - "MATCH,漏网之鱼"
 
 #url:https://raw.githubusercontent.com/mihomo-party-org/override-hub/refs/heads/main/yaml/ACL4SSR_Online_Full_WithIcon.yaml
+
 
 
 
