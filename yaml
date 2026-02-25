@@ -1,3 +1,31 @@
+dns:
+  enable: true
+  listen: :1053
+  ipv6: false # 如果你不需要 IPv6 代理，强烈建议关闭以防 IPv6 泄露
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*'
+    - '+.lan'
+    - '+.local'
+    - '+.direct'
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    # 默认使用可信的加密 DNS，用于解析国外域名
+    - https://8.8.8.8/dns-query
+    - https://1.1.1.1/dns-query
+  nameserver-policy:
+    # 国内域名和局域网域名使用国内加密 DNS，防止被代理污染
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+  proxy-server-nameserver:
+    # 代理节点自身的域名解析，必须使用国内可信 DNS 以避免死循环或泄露
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+
 proxy-groups:
   - name: 节点选择
     icon: https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
@@ -592,4 +620,5 @@ rules:
   - "MATCH,漏网之鱼"
 
 #url:https://raw.githubusercontent.com/mihomo-party-org/override-hub/refs/heads/main/yaml/ACL4SSR_Online_Full_WithIcon.yaml
+
 
