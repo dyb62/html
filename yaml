@@ -605,5 +605,28 @@ rules:
   - "RULE-SET,Download,全球直连"
   - "GEOIP,CN,全球直连"
   - "MATCH,漏网之鱼"
-
+  - "DOMAIN-SUFFIX,bilibili.com,全球直连",
+  - "DOMAIN-SUFFIX,qq.com,全球直连",
+  - "DOMAIN-SUFFIX,seedhub.cc,全球直连",
+  - "DOMAIN-SUFFIX,yingmiwo.me,全球直连",
+  - "DOMAIN-SUFFIX,wormhole.app,全球直连",
+  - "DOMAIN-SUFFIX,aliyun.com,全球直连",
+  - "DOMAIN-SUFFIX,pipiyao.pro,全球直连",
+  - "DOMAIN-SUFFIX,hhkan4.com,全球直连",
+  - "DOMAIN-SUFFIX,pubgmap.top,全球直连",
+  - "DOMAIN-SUFFIX,doc2x.noedgeai.com,全球直连",
+  - "DOMAIN-SUFFIX,huya.com,全球直连",
+  - "DOMAIN-SUFFIX,douyu.com,全球直连",
+  - "DOMAIN-SUFFIX,quark.cn,全球直连",
+  - "DOMAIN-SUFFIX,chaoxing.com,全球直连",
+  - "DOMAIN-SUFFIX,douyin.com,全球直连",
+  - "DOMAIN-SUFFIX,xiaoheihe.cn,全球直连",
+  - "DOMAIN-SUFFIX,doubao.com,全球直连",
+  - "DOMAIN-SUFFIX,deepseek.com,全球直连",
+  - "DOMAIN-SUFFIX,csdn.net,全球直连",
+  - "DOMAIN-SUFFIX,aihome.chat,全球直连",
+  - "DOMAIN-SUFFIX,proxy.591234.xyz,全球直连",
+  - "DOMAIN-SUFFIX,run.freecloud.ltd,全球直连",
+  - "DOMAIN-SUFFIX,immersivetranslate.com,全球直连",
+  - "DOMAIN-SUFFIX,gy1.emby.yun,DIRECT",
 #url:https://raw.githubusercontent.com/mihomo-party-org/override-hub/refs/heads/main/yaml/ACL4SSR_Online_Full_WithIcon.yaml
