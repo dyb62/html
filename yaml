@@ -574,7 +574,7 @@ rule-providers:
 rules:
   - "DOMAIN-SUFFIX,bilibili.com,DIRECT"
   - "DOMAIN-SUFFIX,qq.com,DIRECT"
-  - "DOMAIN-SUFFIX,seedhub.cc,DIRECT
+  - "DOMAIN-SUFFIX,seedhub.cc,DIRECT"
   - "DOMAIN-SUFFIX,yingmiwo.me,DIRECT"
   - "DOMAIN-SUFFIX,wormhole.app,DIRECT"
   - "DOMAIN-SUFFIX,aliyun.com,DIRECT"
