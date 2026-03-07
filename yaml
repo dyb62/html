@@ -571,7 +571,30 @@ rule-providers:
     format: text
     type: http
 
-rules:
+rules: - "DOMAIN-SUFFIX,bilibili.com,DIRECT"
+  - "DOMAIN-SUFFIX,qq.com,DIRECT"
+  - "DOMAIN-SUFFIX,seedhub.cc,DIRECT,
+  - "DOMAIN-SUFFIX,yingmiwo.me,DIRECT"
+  - "DOMAIN-SUFFIX,wormhole.app,DIRECT"
+  - "DOMAIN-SUFFIX,aliyun.com,DIRECT"
+  - "DOMAIN-SUFFIX,pipiyao.pro,DIRECT"
+  - "DOMAIN-SUFFIX,hhkan4.com,DIRECT"
+  - "DOMAIN-SUFFIX,pubgmap.top,DIRECT"
+  - "DOMAIN-SUFFIX,doc2x.noedgeai.com,DIRECT"
+  - "DOMAIN-SUFFIX,huya.com,DIRECT"
+  - "DOMAIN-SUFFIX,douyu.com,DIRECT"
+  - "DOMAIN-SUFFIX,quark.cn,DIRECT",
+  - "DOMAIN-SUFFIX,chaoxing.com,DIRECT"
+  - "DOMAIN-SUFFIX,douyin.com,DIRECT"
+  - "DOMAIN-SUFFIX,xiaoheihe.cn,DIRECT"
+  - "DOMAIN-SUFFIX,doubao.com,DIRECT"
+  - "DOMAIN-SUFFIX,deepseek.com,DIRECT"
+  - "DOMAIN-SUFFIX,csdn.net,DIRECT"
+  - "DOMAIN-SUFFIX,aihome.chat,DIRECT"
+  - "DOMAIN-SUFFIX,proxy.591234.xyz,DIRECT"
+  - "DOMAIN-SUFFIX,run.freecloud.ltd,DIRECT"
+  - "DOMAIN-SUFFIX,immersivetranslate.com,DIRECT"
+  - "DOMAIN-SUFFIX,gy1.emby.yun,DIRECT"
   - "RULE-SET,LocalAreaNetwork,全球直连"
   - "RULE-SET,UnBan,全球直连"
   - "RULE-SET,BanAD,广告拦截"
@@ -605,29 +628,5 @@ rules:
   - "RULE-SET,Download,全球直连"
   - "GEOIP,CN,全球直连"
   - "MATCH,漏网之鱼"
-  - "DOMAIN-SUFFIX,bilibili.com,DIRECT"
-  - "DOMAIN-SUFFIX,qq.com,DIRECT"
-  - "DOMAIN-SUFFIX,seedhub.cc,DIRECT,
-  - "DOMAIN-SUFFIX,yingmiwo.me,DIRECT"
-  - "DOMAIN-SUFFIX,wormhole.app,DIRECT"
-  - "DOMAIN-SUFFIX,aliyun.com,DIRECT"
-  - "DOMAIN-SUFFIX,pipiyao.pro,DIRECT"
-  - "DOMAIN-SUFFIX,hhkan4.com,DIRECT"
-  - "DOMAIN-SUFFIX,pubgmap.top,DIRECT"
-  - "DOMAIN-SUFFIX,doc2x.noedgeai.com,DIRECT"
-  - "DOMAIN-SUFFIX,huya.com,DIRECT"
-  - "DOMAIN-SUFFIX,douyu.com,DIRECT"
-  - "DOMAIN-SUFFIX,quark.cn,DIRECT",
-  - "DOMAIN-SUFFIX,chaoxing.com,DIRECT"
-  - "DOMAIN-SUFFIX,douyin.com,DIRECT"
-  - "DOMAIN-SUFFIX,xiaoheihe.cn,DIRECT"
-  - "DOMAIN-SUFFIX,doubao.com,DIRECT"
-  - "DOMAIN-SUFFIX,deepseek.com,DIRECT"
-  - "DOMAIN-SUFFIX,csdn.net,DIRECT"
-  - "DOMAIN-SUFFIX,aihome.chat,DIRECT"
-  - "DOMAIN-SUFFIX,proxy.591234.xyz,DIRECT"
-  - "DOMAIN-SUFFIX,run.freecloud.ltd,DIRECT"
-  - "DOMAIN-SUFFIX,immersivetranslate.com,DIRECT"
-  - "DOMAIN-SUFFIX,gy1.emby.yun,DIRECT"
 
 #url:https://raw.githubusercontent.com/mihomo-party-org/override-hub/refs/heads/main/yaml/ACL4SSR_Online_Full_WithIcon.yaml
