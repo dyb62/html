@@ -571,7 +571,7 @@ rule-providers:
     format: text
     type: http
 
-rules:  - "DOMAIN-SUFFIX,bilibili.com,DIRECT"
+rules: - "DOMAIN-SUFFIX,bilibili.com,DIRECT"
   - "DOMAIN-SUFFIX,qq.com,DIRECT"
   - "DOMAIN-SUFFIX,seedhub.cc,DIRECT,
   - "DOMAIN-SUFFIX,yingmiwo.me,DIRECT"
