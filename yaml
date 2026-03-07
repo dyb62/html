@@ -628,5 +628,5 @@ rules:
   - "DOMAIN-SUFFIX,proxy.591234.xyz,全球直连",
   - "DOMAIN-SUFFIX,run.freecloud.ltd,全球直连",
   - "DOMAIN-SUFFIX,immersivetranslate.com,全球直连",
-  - "DOMAIN-SUFFIX,gy1.emby.yun,DIRECT",
+  - "DOMAIN-SUFFIX,gy1.emby.yun,全球直连",
 #url:https://raw.githubusercontent.com/mihomo-party-org/override-hub/refs/heads/main/yaml/ACL4SSR_Online_Full_WithIcon.yaml
